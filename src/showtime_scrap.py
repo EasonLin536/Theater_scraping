@@ -18,6 +18,12 @@ theater = {
     "土城秀泰"   : 55,
 }
 
+webdriver_path = "./chromedriver/chromedriver.exe"
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+driver = webdriver.Chrome(executable_path=webdriver_path, options=chrome_options)
+wait = WebDriverWait(driver, 10)
+
 
 # get url of different theater
 def get_theater_url(theater_id):
@@ -49,16 +55,12 @@ def strQ2B(ustring):
 
 # scrap showtime.com
 def scrap(theater_dict, c):
-    webdriver_path = "./chromedriver/chromedriver.exe"
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(executable_path=webdriver_path, options=chrome_options)
-    wait = WebDriverWait(driver, 10)
+    num = 0
 
     # get theaters
     for item in theater.items():
         place = item[0]
-        print(place)
+        # print(place)
         
         theater_url = get_theater_url(item[1])
         driver.get(theater_url)
@@ -70,7 +72,7 @@ def scrap(theater_dict, c):
 
         # get dates
         for date in dates:
-            print(" " * 2, date)
+            # print(" " * 2, date)
             schedule_url = get_schedule_url(theater_url, date)
 
             driver.get(schedule_url)
@@ -82,7 +84,7 @@ def scrap(theater_dict, c):
             # get movies
             for movie in movies:
                 title = strQ2B(movie.find_elements_by_tag_name("a")[1].text.replace(" ", ""))
-                print(" " * 4, title)
+                # print(" " * 4, title)
 
                 schedule = movie.find_element_by_class_name("col-md-8")
                 time_rows = schedule.find_elements_by_class_name("hidden-xs")
@@ -93,10 +95,12 @@ def scrap(theater_dict, c):
                     other = time_row.find_elements_by_tag_name("span")[1].text
                     times = time_row.find_elements_by_tag_name("div")
                     times = [x.text[0:5] for x in times]
-                    print(" " * 8 + f"{hall} : {times}")
+                    # print(" " * 8 + f"{hall} : {times}")
 
                     for time in times:
                         insert_db(c, title, place, date, time, f"{hall}, {other}")
+                        num += 1
+                        print(f"scraped {num} movie sessions", end="\r")
 
     driver.close()
 
@@ -143,11 +147,12 @@ def list_db(c):
         print()
 
 
+print("=== Scraping Showtine Cinema ===")
+print("Creating database")
 db, c = create_db()
-
+print("Scraping")
 c = scrap(theater, c)
-
 # list_db(c)
-
 db.commit()
 db.close()
+print("\nDone")

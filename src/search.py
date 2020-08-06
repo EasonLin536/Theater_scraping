@@ -5,9 +5,9 @@ import sqlite3
 # print db
 def print_db(cursor):
     for row in cursor:
-        print(" " * 95 + row[4], end="\r")
-        print(" " * 85 + row[3], end="\r")
-        print(" " * 70 + row[2], end="\r")
+        print(" " * 105 + row[4], end="\r")
+        print(" " * 95 + row[3], end="\r")
+        print(" " * 80 + row[2], end="\r")
         print(" " * 40 + row[1], end="\r")
         print(row[0], end="\r")
         print()
@@ -88,11 +88,13 @@ def search(c, name, theater, date, time):
         else:
             sql_cmd += " and DATE = ?"
         sql_value.append(date)
+        cnt += 1
 
     sql_value = tuple(sql_value)
 
-    cursor = c.execute(sql_cmd, sql_value)
-    print_db(cursor)
+    if cnt != 0:
+        cursor = c.execute(sql_cmd, sql_value)
+        print_db(cursor)
 
 
 # main

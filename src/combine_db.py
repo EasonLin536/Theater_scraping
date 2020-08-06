@@ -3,6 +3,7 @@ import sqlite3
 
 showtime_db = sqlite3.connect("db/showtime.db")
 vieshow_db = sqlite3.connect("db/vieshow.db")
+ambassador_db = sqlite3.connect("db/ambassador.db")
 
 
 # create db
@@ -34,7 +35,7 @@ def insert_db(c, title, place, date, time, other):
 
 
 # combine dbs
-def combine(showtime_c, vieshow_c):
+def combine(showtime_c, vieshow_c, ambassador_c):
     db, c = create_db()
     
     showtime_cursor = showtime_c.execute("SELECT TITLE, PLACE, DATE, TIME, OTHER from MOVIE")
@@ -43,6 +44,9 @@ def combine(showtime_c, vieshow_c):
     vieshow_cursor = vieshow_c.execute("SELECT TITLE, PLACE, DATE, TIME, OTHER from MOVIE")
     for row in vieshow_cursor:
         insert_db(c, row[0], row[1], row[2], row[3], row[4])
+    ambassador_cursor = ambassador_c.execute("SELECT TITLE, PLACE, DATE, TIME, OTHER from MOVIE")
+    for row in ambassador_cursor:
+        insert_db(c, row[0], row[1], row[2], row[3], row[4])
 
     db.commit()
     db.close()
@@ -50,4 +54,5 @@ def combine(showtime_c, vieshow_c):
 
 showtime_c = showtime_db.cursor()
 vieshow_c = vieshow_db.cursor()
-combine(showtime_c, vieshow_c)
+ambassador_c = ambassador_db.cursor()
+combine(showtime_c, vieshow_c, ambassador_c)

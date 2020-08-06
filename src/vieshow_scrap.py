@@ -77,11 +77,12 @@ def get_times(time_rows):
 
 # scrap showtime.com
 def scrap(c):
+    num = 0
     theaters = get_theaters()
 
     for idx in range(len(theaters)):
         place = theaters[idx]
-        print(place)
+        # print(place)
         driver.get(url)
 
         select_theater = wait.until(EC.presence_of_element_located((By.NAME, "CinemaNameTWInfoF")))
@@ -112,7 +113,7 @@ def scrap(c):
             title, other = get_title(title)
             if other == "PRE" or other == "LIVE":
                 continue
-            print(title)
+            # print(title)
             
 
             wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "strong.col-xs-12.LangTW.RealShowDate")))
@@ -128,12 +129,14 @@ def scrap(c):
 
             for j in range(len(dates)):
                 date = dates[j]
-                print(date)
+                # print(date)
                 times = time_rows[j]
 
                 for time in times:
-                    print(time)
+                    # print(time)
                     insert_db(c, title, place, date, time, other)
+                    num += 1
+                    print(f"scraped {num} movie sessions", end="\r")
 
         # break
 
@@ -181,12 +184,12 @@ def list_db(c):
         print()
 
 
+print("=== Scraping Vieshow Cinema ===")
+print("Creating database")
 db, c = create_db()
-
+print("Scraping")
 scrap(c)
-
-list_db(c)
-
+# list_db(c)
 db.commit()
 db.close()
-
+print("\nDone")
